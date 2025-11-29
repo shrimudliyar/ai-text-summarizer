@@ -3,6 +3,25 @@ from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
 
+import nltk
+from nltk.data import find
+
+
+def ensure_nltk_data():
+    """
+    Make sure required NLTK data is available.
+    This is important for deployment on cloud (no local cache there).
+    """
+    for resource in ["punkt", "punkt_tab"]:
+        try:
+            # Just try to find the resource
+            find(f"tokenizers/{resource}")
+        except LookupError:
+            nltk.download(resource)
+
+
+ensure_nltk_data()
+
 
 def summarize_text(text: str, sentence_count: int = 3) -> str:
     """
@@ -21,14 +40,12 @@ def main():
     st.title("🧠 AI Text Summarizer")
     st.write("Paste any long paragraph and get a short summary.")
 
-    # Text input
     text = st.text_area(
         "Enter your text here:",
         height=250,
         placeholder="Paste a long article, paragraph, notes, etc..."
     )
 
-    # Sentence count slider
     sentence_count = st.slider(
         "How many sentences do you want in the summary?",
         min_value=1,
